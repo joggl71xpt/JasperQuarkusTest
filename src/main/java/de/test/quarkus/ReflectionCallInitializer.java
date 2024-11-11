@@ -21,6 +21,10 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
         net.sf.jasperreports.engine.JasperCompileManager.class,
         net.sf.jasperreports.engine.JasperFillManager.class,
         net.sf.jasperreports.components.table.fill.TableReportScriptlet.class,
+        java.util.Date.class,
+        java.time.ZonedDateTime.class,
+        java.time.Instant.class,
+        java.time.ZoneId.class,
         // from https://stackoverflow.com/questions/76219135/error-with-quarkus-native-and-jasperreport
       //  net.sf.jasperreports.engine.xml.JRReportSaxParserFactory.class,
       //  net.sf.jasperreports.engine.export.XmpWriter.class,

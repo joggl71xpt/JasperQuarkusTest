@@ -45,6 +45,7 @@ http://localhost:8080/simple
 2. Report with dataset (TableDatasetReport.jrxml)
    interestingly this works in native mode (contains a subdata set like in #3)
 http://localhost:8080/dataset
+Update: after adding an additional column in the table, with some simple date conversion, this also fails
 
 3. Complex Report (FixedPriceGoAEInvoice.jrxml)
    this will throw an class not found error in native mode (in DEV it works)

@@ -4,6 +4,10 @@
 	<dataset name="InvoicePositionsDataset" uuid="435d5d29-31d6-44d3-83bb-06b2603ecba1">
 		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SimpleJsonDataAdapter.jrdax"/>
 		<query language="json"><![CDATA[positions]]></query>
+		<field name="deliveryTimestamp" class="java.lang.String">
+			<description><![CDATA[deliveryTimestamp]]></description>
+			<property name="net.sf.jasperreports.json.field.expression" value="deliveryTimestamp"/>
+		</field>
 		<field name="product" class="java.lang.String">
 			<description><![CDATA[product]]></description>
 			<property name="net.sf.jasperreports.json.field.expression" value="product"/>
@@ -50,18 +54,31 @@
 					<datasetRun uuid="ce461cfd-45be-4630-963c-b1e032c6170c" subDataset="InvoicePositionsDataset">
 						<dataSourceExpression><![CDATA[((net.sf.jasperreports.json.data.JsonDataSource)$P{REPORT_DATA_SOURCE}).subDataSource("positions")]]></dataSourceExpression>
 					</datasetRun>
-					<column kind="single" uuid="ba47cd24-137c-420a-bb78-5e9b28b7ca63" width="200">
-						<columnHeader height="30">
-							<element kind="textField" uuid="68832f56-ab89-4d44-9c21-7b90c4ef40cb" x="0" y="0" width="200" height="30">
+					<column kind="single" uuid="8fe962c1-5474-4a1a-a3d4-413e04e2232c" width="130">
+						<columnHeader height="30" rowSpan="1">
+							<element kind="textField" uuid="e4224d7b-12ae-4735-87cf-a7b179a3da85" x="0" y="0" width="130" height="30">
+								<expression><![CDATA[$R{header.date}]]></expression>
+							</element>
+						</columnHeader>
+						<detailCell height="30">
+							<element kind="textField" uuid="887cca1b-e127-4cff-9b2d-9af51503f1ae" x="0" y="0" width="130" height="30" textAdjust="StretchHeight" pattern="dd.MM.yyyy HH:mm " blankWhenNull="true">
+								<expression><![CDATA[String.format("%1$te. %1$tB %1$tY", java.util.Date.from( java.time.Instant.parse( $F{deliveryTimestamp})))]]></expression>
+							</element>
+						</detailCell>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+					</column>
+					<column kind="single" uuid="ba47cd24-137c-420a-bb78-5e9b28b7ca63" width="150">
+						<columnHeader height="30" rowSpan="1">
+							<element kind="textField" uuid="68832f56-ab89-4d44-9c21-7b90c4ef40cb" x="0" y="0" width="150" height="30">
 								<expression><![CDATA[$R{header.product}]]></expression>
 							</element>
 						</columnHeader>
 						<detailCell height="30">
-							<element kind="textField" uuid="57059718-24c8-4908-8c6b-6d1697b81ac1" x="0" y="0" width="200" height="30">
+							<element kind="textField" uuid="57059718-24c8-4908-8c6b-6d1697b81ac1" x="0" y="0" width="150" height="30">
 								<expression><![CDATA[$F{product}]]></expression>
 							</element>
 						</detailCell>
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
 					</column>
 				</component>
 				<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>

@@ -28,7 +28,7 @@ public class JasperManager {
     @ConfigProperty(name = "myjasperquarkus.test.outputdir", defaultValue = "/result")
     String destPath;
 
-    final String jsonString="{'name':'Hugo Meier','positions': [{'product':'product1'},{'product':'product2'}]}";
+    final String jsonString="{'name':'Hugo Meier','positions': [{'deliveryTimestamp' : '2024-10-24T16:40:56Z','product':'product1'},{'deliveryTimestamp' : '2024-10-24T16:40:56Z','product':'product2'}]}";
 //    final String destPath = System.getProperty("user.home") + File.separator +"result"+ File.separator;
 
     public String fillSimpleReport() throws JRException {
