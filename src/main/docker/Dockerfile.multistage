@@ -1,0 +1,101 @@
+## Stage 1 : build with maven builder image with native capabilities
+FROM quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21 AS build
+
+######################### Set up environment for POI #############################
+## https://github.com/quarkiverse/quarkus-jasperreports?tab=readme-ov-file ##
+USER root
+RUN mkdir -p /var/cache/yum/metadata && microdnf update && microdnf install freetype fontconfig && microdnf clean all
+######################### Set up environment for POI #############################
+
+COPY --chown=quarkus:quarkus mvnw /code/mvnw
+COPY --chown=quarkus:quarkus .mvn /code/.mvn
+COPY --chown=quarkus:quarkus pom.xml /code/
+USER quarkus
+
+WORKDIR /code
+RUN ./mvnw -B org.apache.maven.plugins:maven-dependency-plugin:3.2.0:go-offline
+COPY src /code/src
+RUN ./mvnw package -Dnative -DskipTests -Dquarkus.native.native-image-xmx=25G  -Dquarkus.profile=prod
+
+
+RUN ls -lsa
+RUN ls -lsa ./target/
+
+RUN unzip ./target/quarkusjasper-1.0.0-SNAPSHOT.jar -d ./target/x
+RUN ls -lsa ./target/x
+#RUN ls -lsa ./target/x/jasperreports
+RUN ls -lsa ./target/x/META-INF
+
+
+## Stage 2 : create the docker final image
+FROM quay.io/quarkus/quarkus-micro-image:2.0
+
+######################### Set up environment for POI #############################
+## copy the Font stuff from stage 1 container
+######################### Set up environment for POI #############################
+COPY --from=BUILD \
+   /lib64/libfreetype.so.6 \
+   /lib64/libgcc_s.so.1 \
+   /lib64/libbz2.so.1 \
+   /lib64/libpng16.so.16 \
+   /lib64/libm.so.6 \
+   /lib64/libbz2.so.1 \
+   /lib64/libexpat.so.1 \
+   /lib64/libuuid.so.1 \
+   /lib64/
+
+COPY --from=BUILD \
+   /usr/lib64/libfontconfig.so.1 \
+   /usr/lib64/
+
+#libxrender1
+COPY --from=BUILD \
+   /usr/lib64/libXrender.so.1* /usr/lib64/
+
+#libXi
+COPY --from=BUILD \
+    /usr/lib64/libXi.so.6* /usr/lib64/
+
+#libXtst
+COPY --from=BUILD \
+    /usr/lib64/libXtst.so.6* /usr/lib64/
+
+#libX11
+COPY --from=BUILD \
+    /usr/lib64/libX11.so.6* /usr/lib64/
+
+#libX11
+COPY --from=BUILD \
+    /usr/lib64/libXext.so.6* /usr/lib64/
+
+
+# RUN ls -lsa /lib64/
+
+COPY --from=BUILD \
+    /usr/share/fonts /usr/share/fonts
+
+COPY --from=BUILD \
+    /usr/share/fontconfig /usr/share/fontconfig
+
+COPY --from=BUILD \
+    /usr/lib/fontconfig /usr/lib/fontconfig
+
+COPY --from=BUILD \
+     /etc/fonts /etc/fonts
+
+WORKDIR /work/
+COPY --from=build /code/target/*-runner /work/application
+COPY --from=build /code/target/*.properties /code/target/*.so /work/
+
+# set up permissions for user `1001`
+RUN chmod 775 /work /work/application \
+  && chown -R 1001 /work \
+  && chmod -R "g+rwX" /work \
+  && chown -R 1001:root /work
+
+
+
+EXPOSE 8080
+USER 1001
+
+CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
